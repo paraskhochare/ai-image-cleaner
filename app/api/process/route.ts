@@ -130,11 +130,10 @@ function applyEncoder(
         ...(quality ? { quality } : {}), // only meaningful for palette PNGs
       });
     case "webp":
-      return pipeline.webp({
-        quality: q ?? 90,
-        effort: 6,
-        animated: isAnimated,
-      });
+  return pipeline.webp({
+    quality: q ?? 90,
+    effort: 6,
+  });
     case "gif":
       return pipeline.gif({});
     case "avif":
