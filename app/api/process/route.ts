@@ -238,7 +238,16 @@ export async function POST(request: NextRequest) {
             extractedSizeTotal += content.byteLength;
             if (extractedSizeTotal > MAX_ZIP_TOTAL_SIZE) throw new Error("Extracted size limit exceeded.");
 
-            tasks.push({ file: new File([content], relPath, { type: mimeType }), originalPath: relPath });
+            // FIX: Convert Uint8Array to ArrayBuffer to satisfy TypeScript BlobPart requirement
+            const contentBuffer = content.buffer.slice(
+              content.byteOffset,
+              content.byteOffset + content.byteLength
+            );
+
+            tasks.push({ 
+              file: new File([contentBuffer], relPath, { type: mimeType }), 
+              originalPath: relPath 
+            });
           }
         } catch (err) {
           failures.push({ name: file.name, reason: err instanceof Error ? err.message : "Archive integrity check failed." });
