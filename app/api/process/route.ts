@@ -9,10 +9,10 @@ export const dynamic = "force-dynamic";
 sharp.cache(false);
 
 // ---------- Config ----------
-const MAX_FILE_SIZE = 20 * 1024 * 1024;
+const MAX_FILE_SIZE = 1024 * 1024 * 1024;      // 1 GB
 const MAX_BATCH_SIZE = 100;
 const MAX_EXTRACTED_FILES = 500;
-const MAX_ZIP_TOTAL_SIZE = 150 * 1024 * 1024;
+const MAX_ZIP_TOTAL_SIZE = 1024 * 1024 * 1024; // 1 GB
 const MAX_DIMENSION = 8000;
 const MAX_PIXELS = 100_000_000;
 const MAX_NESTING_DEPTH = 10;
