@@ -236,26 +236,23 @@ export async function POST(request: NextRequest) {
     }
 
     const zipBuffer = await zip.generateAsync({
-      type: "nodebuffer",
-      compression: "DEFLATE",
-      compressionOptions: { level: 9 },
-    });
+  type: "nodebuffer",
+  compression: "DEFLATE",
+  compressionOptions: { level: 9 },
+});
 
-    const body = zipBuffer.buffer.slice(
-      zipBuffer.byteOffset,
-      zipBuffer.byteOffset + zipBuffer.byteLength
-    );
+const body = new Uint8Array(zipBuffer);
 
-    return new Response(body, {
-      status: 200,
-      headers: {
-        "Content-Type": "application/zip",
-        "Content-Disposition": 'attachment; filename="processed-images.zip"',
-        "Cache-Control": "no-store",
-        "X-Content-Type-Options": "nosniff",
-        "Cross-Origin-Resource-Policy": "same-origin",
-      },
-    });
+return new Response(body as BodyInit, {
+  status: 200,
+  headers: {
+    "Content-Type": "application/zip",
+    "Content-Disposition": 'attachment; filename="processed-images.zip"',
+    "Cache-Control": "no-store",
+    "X-Content-Type-Options": "nosniff",
+    "Cross-Origin-Resource-Policy": "same-origin",
+  },
+});
 
   } catch (error) {
     console.error("Critical Route Error:", error);
