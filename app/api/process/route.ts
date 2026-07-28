@@ -1,5 +1,8 @@
-import sharp from "sharp";
 import { NextRequest, NextResponse } from "next/server";
+import sharp from "sharp";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,33 +17,32 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
+    const inputBuffer = Buffer.from(await file.arrayBuffer());
 
-    const output = await sharp(buffer)
-      .rotate()
-      .withMetadata({})
+    const outputBuffer = await sharp(inputBuffer)
+      .rotate() // Normalize orientation
       .jpeg({
         quality: 92,
+        mozjpeg: true,
       })
       .toBuffer();
 
-    const arrayBuffer = output.buffer.slice(
-  output.byteOffset,
-  output.byteOffset + output.byteLength
-);
-
-return new Response(arrayBuffer, {
-  headers: {
-    "Content-Type": "image/jpeg",
-    "Content-Disposition": `attachment; filename="${file.name.replace(/\.[^.]+$/, "")}.jpg"`,
-  },
-});
-  } catch (err) {
-    console.error(err);
+    return new Response(new Uint8Array(outputBuffer), {
+      status: 200,
+      headers: {
+        "Content-Type": "image/jpeg",
+        "Content-Disposition": `attachment; filename="${
+          file.name.replace(/\.[^.]+$/, "")
+        }-processed.jpg"`,
+        "Cache-Control": "no-store",
+      },
+    });
+  } catch (error) {
+    console.error(error);
 
     return NextResponse.json(
       {
-        error: "Processing failed.",
+        error: "Image processing failed.",
       },
       {
         status: 500,
