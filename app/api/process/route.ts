@@ -236,12 +236,12 @@ export async function POST(request: NextRequest) {
     }
 
     const zipBuffer = await zip.generateAsync({
-      type: "nodebuffer",
-      compression: "DEFLATE",
-      compressionOptions: { level: 9 }
-    });
+  type: "uint8array",
+  compression: "DEFLATE",
+  compressionOptions: { level: 9 }
+});
 
-    return new Response(zipBuffer, {
+return new Response(zipBuffer, {
       status: 200,
       headers: {
         "Content-Type": "application/zip",
