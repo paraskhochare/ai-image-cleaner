@@ -9,13 +9,16 @@ export default function Hero() {
   const [downloadUrl, setDownloadUrl] = useState("");
   const [fileName, setFileName] = useState("");
 
-  async function processImage(file: File) {
+  async function processImage(files: File[]) {
     setProcessing(true);
     setDownloadUrl("");
 
     try {
       const formData = new FormData();
-      formData.append("image", file);
+
+files.forEach((file) => {
+  formData.append("image", file);
+});
 
       const response = await fetch("/api/process", {
         method: "POST",
@@ -33,7 +36,11 @@ export default function Hero() {
       const url = URL.createObjectURL(blob);
 
       setDownloadUrl(url);
-      setFileName(file.name.replace(/\.[^.]+$/, "") + "-cleaned.jpg");
+      setFileName(
+  files.length === 1
+    ? files[0].name.replace(/\.[^.]+$/, "") + "-cleaned.jpg"
+    : "processed-images.zip"
+);
     } catch (err) {
       console.error(err);
       alert("Unexpected error.");
@@ -99,14 +106,18 @@ export default function Hero() {
           </p>
 
           <input
-            hidden
-            ref={inputRef}
-            type="file"
-            accept="image/*"
+  hidden
+  ref={inputRef}
+  type="file"
+  accept="image/*"
+  multiple
             onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) processImage(file);
-            }}
+  const files = Array.from(e.target.files ?? []);
+
+  if (files.length > 0) {
+    processImage(files);
+  }
+}}
           />
         </div>
 
