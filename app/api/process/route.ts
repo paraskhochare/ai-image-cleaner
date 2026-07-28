@@ -8,14 +8,28 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
 
-    const file = formData.get("image");
+    const uploadedFiles = formData.getAll("image");
 
-    if (!(file instanceof File)) {
-      return NextResponse.json(
-        { error: "No image uploaded." },
-        { status: 400 }
-      );
-    }
+if (uploadedFiles.length === 0) {
+  return errorResponse(
+    "No images uploaded. Expected one or more 'image' fields.",
+    400
+  );
+}
+
+const files = uploadedFiles.filter(
+  (item): item is File => item instanceof File
+);
+
+if (files.length === 0) {
+  return errorResponse(
+    "No valid image files were uploaded.",
+    400
+  );
+}
+
+// Temporary: keep using only the first file until the next step
+const file = files[0];
 
     const inputBuffer = Buffer.from(await file.arrayBuffer());
 
