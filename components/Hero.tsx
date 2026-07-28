@@ -102,8 +102,8 @@ files.forEach((file) => {
           </h2>
 
           <p style={{ color: "#b794f6" }}>
-            Click to choose an image
-          </p>
+  Click to choose one or more images
+</p>
 
           <input
   hidden
