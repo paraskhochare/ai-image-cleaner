@@ -236,12 +236,26 @@ export async function POST(request: NextRequest) {
     }
 
     const zipBuffer = await zip.generateAsync({
-  type: "uint8array",
+  type: "nodebuffer",
   compression: "DEFLATE",
   compressionOptions: { level: 9 }
 });
 
-return new Response(zipBuffer, {
+const body = zipBuffer.buffer.slice(
+  zipBuffer.byteOffset,
+  zipBuffer.byteOffset + zipBuffer.byteLength
+);
+
+return new Response(body, {
+  status: 200,
+  headers: {
+    "Content-Type": "application/zip",
+    "Content-Disposition": 'attachment; filename="processed-images.zip"',
+    "Cache-Control": "no-store",
+    "X-Content-Type-Options": "nosniff",
+    "Cross-Origin-Resource-Policy": "same-origin",
+  },
+});
       status: 200,
       headers: {
         "Content-Type": "application/zip",
