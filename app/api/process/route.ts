@@ -238,14 +238,12 @@ export async function POST(request: NextRequest) {
             extractedSizeTotal += content.byteLength;
             if (extractedSizeTotal > MAX_ZIP_TOTAL_SIZE) throw new Error("Extracted size limit exceeded.");
 
-            // FIX: Convert Uint8Array to ArrayBuffer to satisfy TypeScript BlobPart requirement
-            const contentBuffer = content.buffer.slice(
-              content.byteOffset,
-              content.byteOffset + content.byteLength
-            );
+            // FIX: Create a fresh ArrayBuffer to satisfy BlobPart requirement (prevents ArrayBufferLike union error)
+            const freshBuffer = new ArrayBuffer(content.byteLength);
+            new Uint8Array(freshBuffer).set(content);
 
             tasks.push({ 
-              file: new File([contentBuffer], relPath, { type: mimeType }), 
+              file: new File([freshBuffer], relPath, { type: mimeType }), 
               originalPath: relPath 
             });
           }
@@ -254,7 +252,16 @@ export async function POST(request: NextRequest) {
         }
       } else {
         const safeName = path.basename(file.name);
-        tasks.push({ file: new File([await file.arrayBuffer()], safeName, { type: file.type }), originalPath: safeName });
+        const arrayBuffer = await file.arrayBuffer();
+        
+        // FIX: Ensure direct uploads also use a strictly typed ArrayBuffer
+        const freshBuffer = new ArrayBuffer(arrayBuffer.byteLength);
+        new Uint8Array(freshBuffer).set(new Uint8Array(arrayBuffer));
+
+        tasks.push({ 
+          file: new File([freshBuffer], safeName, { type: file.type }), 
+          originalPath: safeName 
+        });
       }
     }
 
