@@ -4,7 +4,43 @@ import { useRef, useState } from "react";
 
 export default function Hero() {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [count, setCount] = useState(0);
+
+  const [processing, setProcessing] = useState(false);
+  const [downloadUrl, setDownloadUrl] = useState("");
+  const [fileName, setFileName] = useState("");
+
+  async function processImage(file: File) {
+    setProcessing(true);
+    setDownloadUrl("");
+
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const response = await fetch("/api/process", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        alert("Processing failed.");
+        setProcessing(false);
+        return;
+      }
+
+      const blob = await response.blob();
+
+      const url = URL.createObjectURL(blob);
+
+      setDownloadUrl(url);
+      setFileName(file.name.replace(/\.[^.]+$/, "") + "-cleaned.jpg");
+    } catch (err) {
+      console.error(err);
+      alert("Unexpected error.");
+    }
+
+    setProcessing(false);
+  }
 
   return (
     <section
@@ -14,7 +50,7 @@ export default function Hero() {
         justifyContent: "center",
         alignItems: "center",
         background:
-          "linear-gradient(180deg,#05020d 0%,#0a0617 40%,#11081f 100%)",
+          "linear-gradient(180deg,#05020d 0%,#0a0617 45%,#120820 100%)",
         padding: "30px",
       }}
     >
@@ -30,7 +66,6 @@ export default function Hero() {
             color: "white",
             fontSize: "56px",
             fontWeight: 800,
-            marginBottom: "20px",
           }}
         >
           AI Image Cleaner
@@ -38,101 +73,66 @@ export default function Hero() {
 
         <p
           style={{
-            color: "#b9b4d3",
-            fontSize: "20px",
-            lineHeight: 1.7,
-            marginBottom: "45px",
+            color: "#c4b5fd",
+            marginBottom: "40px",
           }}
         >
-          Remove metadata, normalize encoding and apply optional
-          privacy-focused image processing.
+          Remove metadata, normalize encoding and process images securely.
         </p>
 
         <div
           onClick={() => inputRef.current?.click()}
           style={{
             border: "2px dashed #8b5cf6",
-            borderRadius: "22px",
-            padding: "70px 25px",
-            cursor: "pointer",
+            borderRadius: "20px",
             background: "#161022",
-            transition: ".25s",
-            boxShadow: "0 0 35px rgba(139,92,246,.25)",
+            padding: "70px 20px",
+            cursor: "pointer",
           }}
         >
-          <div
-            style={{
-              fontSize: "55px",
-            }}
-          >
-            ☁
-          </div>
-
-          <h2
-            style={{
-              color: "white",
-              marginTop: "20px",
-            }}
-          >
-            Upload Images
+          <h2 style={{ color: "white" }}>
+            {processing ? "Processing..." : "Upload Images"}
           </h2>
 
-          <p
-            style={{
-              color: "#c4b5fd",
-            }}
-          >
-            Drag & Drop or Click to Upload
+          <p style={{ color: "#b794f6" }}>
+            Click to choose an image
           </p>
-
-          <p
-            style={{
-              color: "#8b8ba7",
-              fontSize: "14px",
-            }}
-          >
-            JPG • PNG • WEBP • AVIF • HEIC
-          </p>
-
-          {count > 0 && (
-            <p
-              style={{
-                color: "#22c55e",
-                marginTop: "18px",
-                fontWeight: 700,
-              }}
-            >
-              {count} image(s) selected
-            </p>
-          )}
 
           <input
-            ref={inputRef}
             hidden
-            multiple
-            accept="image/*"
+            ref={inputRef}
             type="file"
+            accept="image/*"
             onChange={(e) => {
-              setCount(e.target.files?.length ?? 0);
+              const file = e.target.files?.[0];
+              if (file) processImage(file);
             }}
           />
         </div>
 
-        <div
-          style={{
-            marginTop: "35px",
-            display: "flex",
-            justifyContent: "center",
-            gap: "25px",
-            flexWrap: "wrap",
-            color: "#b9b4d3",
-          }}
-        >
-          <span>✓ No permanent storage</span>
-          <span>✓ Batch processing</span>
-          <span>✓ Fast processing</span>
-          <span>✓ Metadata removal</span>
-        </div>
+        {downloadUrl && (
+          <div
+            style={{
+              marginTop: "35px",
+            }}
+          >
+            <a
+              href={downloadUrl}
+              download={fileName}
+              style={{
+                display: "inline-block",
+                background: "#8b5cf6",
+                color: "white",
+                padding: "15px 35px",
+                borderRadius: "12px",
+                textDecoration: "none",
+                fontWeight: 700,
+              }}
+            >
+              Download Processed Image
+            </a>
+          </div>
+        )}
       </div>
     </section>
   );
