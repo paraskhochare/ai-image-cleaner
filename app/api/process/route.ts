@@ -160,11 +160,28 @@ export async function POST(request: NextRequest) {
       return errorResponse("Invalid form data.", 400);
     }
 
-    const file = formData.get("image");
+    const uploadedFiles = formData.getAll("image");
 
-    if (!(file instanceof File)) {
-      return errorResponse("No image uploaded. Expected a form field named 'image'.", 400);
-    }
+if (uploadedFiles.length === 0) {
+  return errorResponse(
+    "No images uploaded. Expected one or more 'image' fields.",
+    400
+  );
+}
+
+const files = uploadedFiles.filter(
+  (item): item is File => item instanceof File
+);
+
+if (files.length === 0) {
+  return errorResponse(
+    "No valid image files were uploaded.",
+    400
+  );
+}
+
+// Temporary: keep using the first file until the next step
+const file = files[0];
     if (file.size === 0) {
       return errorResponse("Uploaded file is empty.", 400);
     }
