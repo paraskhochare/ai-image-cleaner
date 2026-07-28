@@ -105,20 +105,19 @@ files.forEach((file) => {
   Click to choose one or more images
 </p>
 
-          <input
+     <input
   hidden
   ref={inputRef}
   type="file"
   accept="image/*"
-  multiple
-            onChange={(e) => {
-  const files = Array.from(e.target.files ?? []);
-
-  if (files.length > 0) {
-    processImage(files);
-  }
-}}
-          />
+  multiple={true}
+  onChange={(e) => {
+    const files = Array.from(e.target.files ?? []);
+    if (files.length > 0) {
+      processImage(files);
+    }
+  }}
+/>
         </div>
 
         {downloadUrl && (
