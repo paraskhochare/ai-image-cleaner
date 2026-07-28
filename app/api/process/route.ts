@@ -24,12 +24,17 @@ export async function POST(request: NextRequest) {
       })
       .toBuffer();
 
-    return new Response(output, {
-      headers: {
-        "Content-Type": "image/jpeg",
-        "Content-Disposition": `attachment; filename="${file.name.replace(/\.[^.]+$/, "")}.jpg"`,
-      },
-    });
+    const arrayBuffer = output.buffer.slice(
+  output.byteOffset,
+  output.byteOffset + output.byteLength
+);
+
+return new Response(arrayBuffer, {
+  headers: {
+    "Content-Type": "image/jpeg",
+    "Content-Disposition": `attachment; filename="${file.name.replace(/\.[^.]+$/, "")}.jpg"`,
+  },
+});
   } catch (err) {
     console.error(err);
 
