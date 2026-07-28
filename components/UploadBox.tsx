@@ -1,9 +1,15 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 export default function UploadBox() {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [files, setFiles] = useState<File[]>([]);
+
+  function handleFiles(e: React.ChangeEvent<HTMLInputElement>) {
+    if (!e.target.files) return;
+    setFiles(Array.from(e.target.files));
+  }
 
   return (
     <section
@@ -22,37 +28,50 @@ export default function UploadBox() {
           textAlign: "center",
           cursor: "pointer",
           background: "#111827",
-          transition: "0.2s",
         }}
       >
         <h2>Upload Images</h2>
 
-        <p
-          style={{
-            color: "#9ca3af",
-            marginTop: "10px",
-          }}
-        >
-          Drag & Drop images here
-        </p>
-
-        <p
-          style={{
-            color: "#6b7280",
-            fontSize: "14px",
-          }}
-        >
-          or tap anywhere to browse
+        <p style={{ color: "#9ca3af" }}>
+          Tap here to choose one or more images
         </p>
 
         <input
           ref={inputRef}
           type="file"
-          multiple
           accept="image/*"
-          hidden
+          multiple
+          style={{ display: "none" }}
+          onChange={handleFiles}
         />
       </div>
+
+      {files.length > 0 && (
+        <div
+          style={{
+            marginTop: "25px",
+            background: "#1f2937",
+            padding: "20px",
+            borderRadius: "12px",
+          }}
+        >
+          <h3>Selected Images ({files.length})</h3>
+
+          {files.map((file, index) => (
+            <div
+              key={index}
+              style={{
+                padding: "8px 0",
+                borderBottom: "1px solid #374151",
+              }}
+            >
+              <strong>{file.name}</strong>
+              <br />
+              {(file.size / 1024 / 1024).toFixed(2)} MB
+            </div>
+          ))}
+        </div>
+      )}
     </section>
   );
 }
