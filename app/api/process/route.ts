@@ -149,6 +149,17 @@ function applyEncoder(
 // ---------- Route ----------
 export async function POST(request: NextRequest) {
   try {
+    async function processSingleImage(
+  file: File,
+  options: ParsedOptions
+): Promise<{
+  filename: string;
+  mimeType: string;
+  buffer: Buffer;
+}> {
+  // We'll move the existing processing code here in the next step.
+  throw new Error("Not implemented yet");
+    }
     const { searchParams } = new URL(request.url);
     const options = parseOptions(searchParams);
 
