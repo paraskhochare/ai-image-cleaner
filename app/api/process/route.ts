@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import JSZip from "jszip";
 import sharp from "sharp";
 
 export const runtime = "nodejs";
@@ -180,7 +181,28 @@ if (files.length === 0) {
 }
 
 // Temporary: keep using the first file until the next step
-const file = files[0];
+const zip = new JSZip();
+
+for (const file of files) {
+    // process image
+    // zip.file(filename, processedBuffer);
+}
+
+const zipBuffer = await zip.generateAsync({
+    type: "nodebuffer",
+    compression: "DEFLATE",
+    compressionOptions: {
+        level: 9,
+    },
+});
+
+return new Response(zipBuffer, {
+    headers: {
+        "Content-Type": "application/zip",
+        "Content-Disposition":
+            'attachment; filename="processed-images.zip"',
+    },
+});
     if (file.size === 0) {
       return errorResponse("Uploaded file is empty.", 400);
     }
